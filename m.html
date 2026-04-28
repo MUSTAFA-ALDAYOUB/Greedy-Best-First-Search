@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>الذكاء الاصطناعي: موسوعة خوارزميات البحث</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;800;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <style>
+        :root {
+            --bg-base: #06080f;
+            --bg-surface: rgba(15, 18, 30, 0.6);
+            --bg-card: rgba(22, 26, 43, 0.7);
+            
+            --gold: #d4af37;
+            --gold-glow: rgba(212, 175, 55, 0.4);
+            --cyan: #00f2fe;
+            --cyan-glow: rgba(0, 242, 254, 0.4);
+            --emerald: #10b981;
+            
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            
+            --border-glass: rgba(255, 255, 255, 0.05);
+            --border-highlight: rgba(255, 255, 255, 0.15);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: var(--bg-base);
+            color: var(--text-primary);
+            line-height: 1.8;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Ambient Background Glows */
+        .ambient-glow { position: fixed; border-radius: 50%; filter: blur(120px); z-index: -1; opacity: 0.5; animation: floatGlow 15s infinite alternate; }
+        .glow-1 { top: -10%; right: -10%; width: 600px; height: 600px; background: rgba(212, 175, 55, 0.15); }
+        .glow-2 { bottom: -10%; left: -10%; width: 700px; height: 700px; background: rgba(0, 242, 254, 0.15); animation-delay: -5s; }
+
+        @keyframes floatGlow { 0% { transform: translate(0, 0) scale(1); } 100% { transform: translate(30px, 50px) scale(1.1); } }
+
+        .container { max-width: 1400px; margin: 0 auto; padding: 0 40px; }
+
+        /* Slide Sections */
+        .slide-section { min-height: 90vh; display: flex; flex-direction: column; justify-content: center; padding: 60px 0; }
+
+        /* Hero Section */
+        .hero { min-height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; position: relative; }
+
+        .developers-badge {
+            background: rgba(212, 175, 55, 0.1); border: 1px solid rgba(212, 175, 55, 0.3); padding: 15px 40px;
+            border-radius: 50px; margin-bottom: 40px; color: var(--gold); font-size: 20px; display: inline-block;
+            backdrop-filter: blur(10px); box-shadow: 0 10px 30px rgba(0,0,0,0.5); transition: transform 0.3s ease;
+        }
+        .developers-badge:hover { transform: scale(1.05); border-color: var(--gold); }
+        .developers-badge .names {
+            font-weight: 900; font-size: 32px; margin-top: 8px; color: #fff; text-shadow: 0 0 20px rgba(212, 175, 55, 0.6);
+            font-family: 'JetBrains Mono', monospace; letter-spacing: 2px;
+        }
+
+        .hero h1 { font-size: 65px; font-weight: 900; margin-bottom: 25px; background: linear-gradient(135deg, #fff, var(--gold)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-shadow: 0 10px 30px var(--gold-glow); }
+        .hero p { font-size: 26px; color: var(--text-secondary); max-width: 900px; }
+        .scroll-indicator { position: absolute; bottom: 30px; color: var(--gold); font-size: 30px; animation: bounce 2s infinite; }
+        @keyframes bounce { 0%, 20%, 50%, 80%, 100% { transform: translateY(0); } 40% { transform: translateY(-20px); } 60% { transform: translateY(-10px); } }
+
+        /* Headings */
+        h2 { font-size: 45px; font-weight: 800; margin-bottom: 30px; display: flex; align-items: center; gap: 20px; }
+        h2::before { content: ''; display: block; width: 8px; height: 45px; background: linear-gradient(to bottom, var(--gold), transparent); border-radius: 4px; }
+        h2.cyan-theme::before { background: linear-gradient(to bottom, var(--cyan), transparent); }
+        
+        h3 { font-size: 32px; color: var(--gold); margin-bottom: 20px; }
+        h3.cyan-theme { color: var(--cyan); }
+
+        /* Glass Panels */
+        .glass-panel {
+            background: var(--bg-surface); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--border-glass); border-radius: 24px; padding: 60px; margin-bottom: 60px;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.5);
+        }
+
+        /* Images */
+        .showcase-image { width: 100%; height: 500px; object-fit: cover; border-radius: 20px; margin-bottom: 40px; border: 1px solid var(--border-highlight); box-shadow: 0 20px 50px rgba(0,0,0,0.6); transition: transform 0.5s ease; }
+        .showcase-image:hover { transform: scale(1.02); }
+
+        /* Info Grid */
+        .visual-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; }
+        .v-card { background: var(--bg-card); border: 1px solid var(--border-glass); padding: 40px; border-radius: 20px; text-align: center; transition: all 0.4s; }
+        .v-card:hover { transform: translateY(-15px); border-color: var(--gold); background: rgba(212, 175, 55, 0.05); box-shadow: 0 20px 40px rgba(0,0,0,0.4); }
+        .v-card.cyan:hover { border-color: var(--cyan); background: rgba(0, 242, 254, 0.05); }
+        .v-card i { font-size: 60px; color: var(--gold); margin-bottom: 25px; }
+        .v-card.cyan i { color: var(--cyan); }
+        .v-card h4 { font-size: 26px; margin-bottom: 15px; color: #fff; }
+        .v-card p { font-size: 20px; color: var(--text-secondary); margin: 0; }
+
+        /* Animations Container (SVG Trees) */
+        .animation-container { background: #0a0e17; padding: 40px; border-radius: 20px; border: 1px solid #30363d; margin: 40px 0; text-align: center; box-shadow: inset 0 0 50px rgba(0,0,0,0.8); }
+
+        /* 3D Code Screenshot Styling */
+        .code-3d-wrapper { perspective: 1500px; margin: 60px 0; }
+        .code-window {
+            background: #0d1117; border-radius: 16px; border: 1px solid #30363d; overflow: hidden;
+            box-shadow: -20px 30px 80px rgba(0,0,0,0.8), inset 0 0 0 1px rgba(255,255,255,0.1);
+            direction: ltr; text-align: left;
+            transform: rotateY(-5deg) rotateX(5deg); transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .code-3d-wrapper:hover .code-window { transform: rotateY(0deg) rotateX(0deg) scale(1.02); }
+        .code-header { background: #161b22; padding: 15px 25px; border-bottom: 1px solid #30363d; display: flex; justify-content: space-between; font-family: 'JetBrains Mono', monospace; color: var(--text-muted); }
+        .code-dots span { display: inline-block; width: 12px; height: 12px; border-radius: 50%; margin-right: 6px; }
+        .code-dots span:nth-child(1) { background: #ff5f56; }
+        .code-dots span:nth-child(2) { background: #ffbd2e; }
+        .code-dots span:nth-child(3) { background: #27c93f; }
+        .code-body { padding: 40px; font-family: 'JetBrains Mono', monospace; font-size: 20px; line-height: 1.8; overflow-x: auto; color: #c9d1d9; }
+        
+        .kw { color: #ff7b72; font-weight: bold; }
+        .fn { color: #d2a8ff; }
+        .vr { color: #79c0ff; }
+        .op { color: #ff7b72; }
+        .nm { color: #a5d6ff; }
+        .cm { color: #8b949e; font-style: italic; }
+
+        /* Comparison Table */
+        .luxury-table { width: 100%; border-collapse: separate; border-spacing: 0; background: var(--bg-card); border-radius: 20px; overflow: hidden; border: 1px solid var(--border-glass); margin: 50px 0; }
+        .luxury-table th { background: rgba(0, 0, 0, 0.4); color: var(--gold); padding: 30px; font-size: 24px; text-align: right; border-bottom: 1px solid var(--border-highlight); }
+        .luxury-table td { padding: 25px 30px; font-size: 22px; border-bottom: 1px solid var(--border-glass); color: var(--text-secondary); }
+        .luxury-table tr:last-child td { border-bottom: none; }
+        .luxury-table tbody tr:hover { background: rgba(255, 255, 255, 0.02); }
+
+        .reveal { opacity: 0; transform: translateY(60px); transition: all 1s cubic-bezier(0.16, 1, 0.3, 1); }
+        .reveal.active { opacity: 1; transform: translateY(0); }
+    </style>
+</head>
+<body>
+
+    <div class="ambient-glow glow-1"></div>
+    <div class="ambient-glow glow-2"></div>
+
+    <main class="container">
+
+        <!-- SLIDE 1: Hero -->
+        <section class="slide-section hero">
+            <div class="developers-badge reveal active">
+                <i class="fa-solid fa-laptop-code"></i> تصميم وتطوير المبرمجين
+                <div class="names">MUSTAFA ALDAYOUB & MOUSA ALAWAD</div>
+            </div>
+            <h1 class="reveal active" style="transition-delay: 0.1s;">الذكاء الاصطناعي: مسارات بلا حدود</h1>
+            <p class="reveal active" style="transition-delay: 0.2s;">رحلة بصرية تفاعلية، نغوص فيها داخل عقول الخوارزميات (Greedy & A*) باستخدام الرسوم المتحركة والأكواد البرمجية الفخمة.</p>
+            <i class="fa-solid fa-chevron-down scroll-indicator"></i>
+        </section>
+
+        <!-- SLIDE 2: Intro & Importance -->
+        <section class="slide-section">
+            <div class="glass-panel reveal">
+                <h2>1. لماذا نحتاج خوارزميات البحث؟</h2>
+                <p style="font-size: 24px; color: var(--text-secondary); margin-bottom: 40px;">الذكاء الاصطناعي لا يرى العالم كما نراه، هو يحتاج لمعادلات رياضية ليتخذ قرار التحرك من النقطة أ إلى النقطة ب بأقل تكلفة، سواء في خرائط جوجل، الألعاب المعقدة، أو توجيه الروبوتات.</p>
+                
+                <img src="https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1400&q=80" alt="AI Brain Circuit" class="showcase-image">
+                
+                <div class="visual-grid">
+                    <div class="v-card">
+                        <i class="fa-solid fa-map-location-dot"></i>
+                        <h4>التكلفة الفعلية g(n)</h4>
+                        <p>التكلفة المؤكدة والجهد الحقيقي الذي تم بذله للوصول للنقطة الحالية. (الماضي)</p>
+                    </div>
+                    <div class="v-card">
+                        <i class="fa-solid fa-eye"></i>
+                        <h4>الحدس التقديري h(n)</h4>
+                        <p>تخمين وذكاء الخوارزمية للمسافة المتبقية، يسمى بالاستدلال (Heuristic). (المستقبل)</p>
+                    </div>
+                    <div class="v-card">
+                        <i class="fa-solid fa-bullseye"></i>
+                        <h4>التقييم النهائي f(n)</h4>
+                        <p>مقياس التفوق، المعادلة التي تحسم أي المسارات هو الأفضل ليتم اختياره فوراً.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SLIDE 3: Greedy Intro & Tree -->
+        <section class="slide-section" id="greedy">
+            <div class="glass-panel reveal">
+                <h2>2. الخوارزمية الجشعة (Greedy BFS)</h2>
+                
+                <img src="file:///C:/Users/My Computer/.gemini/antigravity/brain/5313ee34-8bf7-49b7-9d90-96112634df36/greedy_algorithm_concept_1777415964954.png" alt="Greedy Algorithm Visual" class="showcase-image" style="border-color: var(--gold);">
+                
+                <div class="visual-grid" style="margin-bottom: 50px;">
+                    <div class="v-card">
+                        <i class="fa-solid fa-bolt"></i>
+                        <h4>الاندفاع السريع</h4>
+                        <p>تقرر مسارها اعتماداً كلياً على الحدس التقديري h(n) فقط.</p>
+                    </div>
+                    <div class="v-card">
+                        <i class="fa-solid fa-calculator"></i>
+                        <h4>f(n) = h(n)</h4>
+                        <p>المعادلة التي تتجاهل تماماً كل التكاليف التي قطعتها مسبقاً.</p>
+                    </div>
+                    <div class="v-card" style="border-color: #ef4444;">
+                        <i class="fa-solid fa-triangle-exclamation" style="color: #ef4444;"></i>
+                        <h4>مخاطر الخوارزمية</h4>
+                        <p>سرعتها تأتي بضريبة، فقد تنخدع بمسار يبدو قريباً لكنه طريق مسدود!</p>
+                    </div>
+                </div>
+
+                <h3><i class="fa-solid fa-film"></i> المحاكاة الحية: كيف تتحرك الخوارزمية الجشعة؟</h3>
+                <p style="font-size: 20px; color: var(--text-muted); text-align: center; margin-bottom: 20px;">النقطة المضيئة تمثل الخوارزمية وهي تختار دائماً الرقم الأقل داخل الدائرة (قيمة h)، وتندفع من S إلى B إلى D ثم G، متجاهلة أي تكلفة في الطريق.</p>
+                
+                <!-- SVG Animation for Greedy -->
+                <div class="animation-container">
+                    <svg viewBox="0 0 800 500" width="100%" height="500">
+                        <defs>
+                            <filter id="glowGold"><feGaussianBlur stdDeviation="6" result="coloredBlur"/><feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+                        </defs>
+                        <!-- Edges -->
+                        <line x1="400" y1="80" x2="250" y2="200" stroke="#30363d" stroke-width="4"/>
+                        <line x1="400" y1="80" x2="550" y2="200" stroke="#d4af37" stroke-width="6" opacity="0.6"/> <!-- Path S-B -->
+                        <line x1="550" y1="200" x2="700" y2="350" stroke="#d4af37" stroke-width="6" opacity="0.6"/> <!-- Path B-D -->
+                        <line x1="700" y1="350" x2="550" y2="450" stroke="#d4af37" stroke-width="6" opacity="0.6"/> <!-- Path D-G -->
+                        <line x1="250" y1="200" x2="400" y2="350" stroke="#30363d" stroke-width="4"/>
+                        <line x1="400" y1="350" x2="550" y2="450" stroke="#30363d" stroke-width="4"/>
+                        
+                        <!-- Nodes -->
+                        <circle cx="400" cy="80" r="40" fill="#161b22" stroke="#58a6ff" stroke-width="4"/><text x="400" y="87" fill="#fff" text-anchor="middle" font-size="24" font-weight="bold">S(10)</text>
+                        <circle cx="250" cy="200" r="40" fill="#161b22" stroke="#58a6ff" stroke-width="4"/><text x="250" y="207" fill="#fff" text-anchor="middle" font-size="24" font-weight="bold">A(6)</text>
+                        <circle cx="550" cy="200" r="40" fill="#161b22" stroke="#d4af37" stroke-width="4"/><text x="550" y="207" fill="#fff" text-anchor="middle" font-size="24" font-weight="bold">B(5)</text>
+                        <circle cx="700" cy="350" r="40" fill="#161b22" stroke="#d4af37" stroke-width="4"/><text x="700" y="357" fill="#fff" text-anchor="middle" font-size="24" font-weight="bold">D(4)</text>
+                        <circle cx="400" cy="350" r="40" fill="#161b22" stroke="#58a6ff" stroke-width="4"/><text x="400" y="357" fill="#fff" text-anchor="middle" font-size="24" font-weight="bold">C(2)</text>
+                        <circle cx="550" cy="450" r="40" fill="#161b22" stroke="#10b981" stroke-width="4"/><text x="550" y="457" fill="#fff" text-anchor="middle" font-size="24" font-weight="bold">G(0)</text>
+
+                        <!-- Moving Dot -->
+                        <circle r="16" fill="#fff" filter="url(#glowGold)">
+                            <animateMotion dur="4s" repeatCount="indefinite" path="M400,80 L550,200 L700,350 L550,450" keyPoints="0;0.33;0.66;1" keyTimes="0;0.33;0.66;1" calcMode="linear"/>
+                        </circle>
+                    </svg>
+                </div>
+            </div>
+        </section>
+
+        <!-- SLIDE 4: Greedy Code 3D -->
+        <section class="slide-section">
+            <div class="glass-panel reveal">
+                <h3><i class="fa-solid fa-code"></i> الكود البرمجي لخوارزمية Greedy (لقطة 3D)</h3>
+                
+                <div class="code-3d-wrapper">
+                    <div class="code-window">
+                        <div class="code-header">
+                            <div class="code-dots"><span></span><span></span><span></span></div>
+                            <span>greedy_algorithm.py</span>
+                        </div>
+                        <div class="code-body">
+<span class="kw">def</span> <span class="fn">greedy_bfs</span>(graph, heuristics, start, goal):
+    <span class="vr">open_list</span> <span class="op">=</span> [(start, [start])]
+    <span class="vr">closed_list</span> <span class="op">=</span> <span class="fn">set</span>()
+
+    <span class="kw">while</span> <span class="vr">open_list</span>:
+        <span class="cm"># الترتيب يعتمد حصرياً على h(n) التقديرية</span>
+        <span class="vr">open_list</span>.<span class="fn">sort</span>(key<span class="op">=</span><span class="kw">lambda</span> x: heuristics[x[<span class="nm">0</span>]])
+        <span class="vr">current_node</span>, <span class="vr">path</span> <span class="op">=</span> <span class="vr">open_list</span>.<span class="fn">pop</span>(<span class="nm">0</span>)
+
+        <span class="kw">if</span> <span class="vr">current_node</span> <span class="op">==</span> goal: 
+            <span class="kw">return</span> <span class="vr">path</span>
+            
+        <span class="vr">closed_list</span>.<span class="fn">add</span>(<span class="vr">current_node</span>)
+
+        <span class="kw">for</span> <span class="vr">neighbor</span> <span class="op">in</span> graph[<span class="vr">current_node</span>]:
+            <span class="kw">if</span> <span class="vr">neighbor</span> <span class="kw">not in</span> <span class="vr">closed_list</span>:
+                <span class="vr">open_list</span>.<span class="fn">append</span>((<span class="vr">neighbor</span>, <span class="vr">path</span> <span class="op">+</span> [<span class="vr">neighbor</span>]))
+                
+    <span class="kw">return</span> <span class="kw">None</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Detailed Explanation Cards -->
+                <h3 style="margin-top: 60px;">تفكيك الأسطر البرمجية:</h3>
+                <div class="visual-grid">
+                    <div class="v-card">
+                        <i class="fa-solid fa-list-check"></i>
+                        <h4>التهيئة وقوائم التتبع</h4>
+                        <p>نبدأ بتعريف <code>open_list</code> لتخزين العقد المكتشفة، و <code>closed_list</code> لحفظ العقد التي زرناها لضمان عدم الوقوع في دوامة.</p>
+                    </div>
+                    <div class="v-card">
+                        <i class="fa-solid fa-sort-amount-up"></i>
+                        <h4>الفرز الجشع (الجوهر)</h4>
+                        <p>السطر <code>sort(...)</code> يرتب القائمة المفتوحة في كل دورة بناءً على <strong>القيمة التقديرية h(n) فقط</strong> لدفع العقدة الأقرب للأمام.</p>
+                    </div>
+                    <div class="v-card">
+                        <i class="fa-solid fa-bullseye"></i>
+                        <h4>السحب واختبار الهدف</h4>
+                        <p>عن طريق <code>pop(0)</code> نسحب دائماً أول عقدة. ثم نتأكد <code>if current == goal</code> مما إذا كانت هي النهاية المنشودة لكي نتوقف.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SLIDE 5: A* Intro & Tree -->
+        <section class="slide-section" id="astar">
+            <div class="glass-panel reveal">
+                <h2 class="cyan-theme">3. خوارزمية البحث النجمي (A* Search)</h2>
+                
+                <img src="https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=1400&auto=format&fit=crop" alt="A Star Optimal Path" class="showcase-image" style="border-color: var(--cyan);">
+                
+                <div class="visual-grid" style="margin-bottom: 50px;">
+                    <div class="v-card cyan">
+                        <i class="fa-solid fa-scale-balanced"></i>
+                        <h4>العبقرية في التوازن</h4>
+                        <p>تجمع بين المجهود المبذول فعلياً والمسافة المتبقية لتجنب الأخطاء والمطبات.</p>
+                    </div>
+                    <div class="v-card cyan">
+                        <i class="fa-solid fa-calculator"></i>
+                        <h4>f(n) = g(n) + h(n)</h4>
+                        <p>المعادلة الذهبية والأكثر استخداماً في عالم الألعاب والملاحة الاحترافية.</p>
+                    </div>
+                    <div class="v-card cyan" style="border-color: var(--emerald);">
+                        <i class="fa-solid fa-check-double" style="color: var(--emerald);"></i>
+                        <h4>ضمان الأمثلية (Optimality)</h4>
+                        <p>لن تنخدع بالطرق المسدودة، وتضمن إيجاد أقصر وأفضل مسار بنسبة 100%.</p>
+                    </div>
+                </div>
+
+                <h3 class="cyan-theme"><i class="fa-solid fa-film"></i> المحاكاة الحية: كيف تتحرك خوارزمية A* بذكاء؟</h3>
+                <p style="font-size: 20px; color: var(--text-muted); text-align: center; margin-bottom: 20px;">النقطة النيون تمثل خوارزمية A*. رغم أن العقدة B تمتلك h أقل، إلا أن الخوارزمية ترفضها لأن التكلفة الكلية (f=9) باهظة، فتختار العقدة A (التكلفة f=7) ثم تعبر المسار الأقصر للأبد: S -> A -> C -> G.</p>
+
+                <!-- SVG Animation for A* -->
+                <div class="animation-container">
+                    <svg viewBox="0 0 800 500" width="100%" height="500">
+                        <defs>
+                            <filter id="glowCyan"><feGaussianBlur stdDeviation="6" result="coloredBlur"/><feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+                        </defs>
+                        <!-- Edges -->
+                        <line x1="400" y1="80" x2="250" y2="200" stroke="#00f2fe" stroke-width="6" opacity="0.6"/> <!-- Path S-A -->
+                        <line x1="400" y1="80" x2="550" y2="200" stroke="#30363d" stroke-width="4"/>
+                        <line x1="550" y1="200" x2="700" y2="350" stroke="#30363d" stroke-width="4"/> 
+                        <line x1="700" y1="350" x2="550" y2="450" stroke="#30363d" stroke-width="4"/> 
+                        <line x1="250" y1="200" x2="400" y2="350" stroke="#00f2fe" stroke-width="6" opacity="0.6"/> <!-- Path A-C -->
+                        <line x1="400" y1="350" x2="550" y2="450" stroke="#00f2fe" stroke-width="6" opacity="0.6"/> <!-- Path C-G -->
+                        
+                        <!-- Nodes -->
+                        <circle cx="400" cy="80" r="40" fill="#161b22" stroke="#58a6ff" stroke-width="4"/><text x="400" y="87" fill="#fff" text-anchor="middle" font-size="20" font-weight="bold">S</text>
+                        <circle cx="250" cy="200" r="40" fill="#161b22" stroke="#00f2fe" stroke-width="4"/><text x="250" y="207" fill="#fff" text-anchor="middle" font-size="18" font-weight="bold">A(f=7)</text>
+                        <circle cx="550" cy="200" r="40" fill="#161b22" stroke="#30363d" stroke-width="4"/><text x="550" y="207" fill="#fff" text-anchor="middle" font-size="18" font-family="monospace">B(f=9)</text>
+                        <circle cx="700" cy="350" r="40" fill="#161b22" stroke="#30363d" stroke-width="4"/><text x="700" y="357" fill="#fff" text-anchor="middle" font-size="18" font-family="monospace">D(f=10)</text>
+                        <circle cx="400" cy="350" r="40" fill="#161b22" stroke="#00f2fe" stroke-width="4"/><text x="400" y="357" fill="#fff" text-anchor="middle" font-size="18" font-weight="bold">C(f=4)</text>
+                        <circle cx="550" cy="450" r="40" fill="#161b22" stroke="#10b981" stroke-width="4"/><text x="550" y="457" fill="#fff" text-anchor="middle" font-size="18" font-weight="bold">G(f=4)</text>
+
+                        <!-- Moving Dot -->
+                        <circle r="16" fill="#fff" filter="url(#glowCyan)">
+                            <animateMotion dur="4s" repeatCount="indefinite" path="M400,80 L250,200 L400,350 L550,450" keyPoints="0;0.33;0.66;1" keyTimes="0;0.33;0.66;1" calcMode="linear"/>
+                        </circle>
+                    </svg>
+                </div>
+            </div>
+        </section>
+
+        <!-- SLIDE 6: A* Code 3D -->
+        <section class="slide-section">
+            <div class="glass-panel reveal" style="border-color: rgba(0, 242, 254, 0.2);">
+                <h3 class="cyan-theme"><i class="fa-solid fa-code"></i> الكود البرمجي لخوارزمية A* (لقطة 3D)</h3>
+                
+                <div class="code-3d-wrapper">
+                    <div class="code-window" style="box-shadow: -20px 30px 80px rgba(0,242,254,0.15), inset 0 0 0 1px rgba(0,242,254,0.3);">
+                        <div class="code-header">
+                            <div class="code-dots"><span></span><span></span><span></span></div>
+                            <span>a_star_algorithm.py</span>
+                        </div>
+                        <div class="code-body">
+<span class="kw">def</span> <span class="fn">a_star_search</span>(graph, heuristics, start, goal):
+    <span class="cm"># القائمة تخزن الآن: (العقدة، المسار، g_cost الفعلية)</span>
+    <span class="vr">open_list</span> <span class="op">=</span> [(start, [start], <span class="nm">0</span>)]
+    <span class="vr">closed_list</span> <span class="op">=</span> <span class="fn">set</span>()
+
+    <span class="kw">while</span> <span class="vr">open_list</span>:
+        <span class="cm"># 🌟 الترتيب الذهبي يعتمد على f(n) = g(n) + h(n)</span>
+        <span class="vr">open_list</span>.<span class="fn">sort</span>(key<span class="op">=</span><span class="kw">lambda</span> x: x[<span class="nm">2</span>] <span class="op">+</span> heuristics[x[<span class="nm">0</span>]])
+        <span class="vr">current_node</span>, <span class="vr">path</span>, <span class="vr">current_g_cost</span> <span class="op">=</span> <span class="vr">open_list</span>.<span class="fn">pop</span>(<span class="nm">0</span>)
+
+        <span class="kw">if</span> <span class="vr">current_node</span> <span class="op">==</span> goal: 
+            <span class="kw">return</span> <span class="vr">path</span>
+            
+        <span class="vr">closed_list</span>.<span class="fn">add</span>(<span class="vr">current_node</span>)
+
+        <span class="kw">for</span> <span class="vr">neighbor</span>, <span class="vr">step_cost</span> <span class="op">in</span> graph[<span class="vr">current_node</span>].<span class="fn">items</span>():
+            <span class="kw">if</span> <span class="vr">neighbor</span> <span class="kw">not in</span> <span class="vr">closed_list</span>:
+                <span class="cm"># حساب التكلفة الجديدة: القديمة + المسافة لهذه الخطوة</span>
+                <span class="vr">new_g_cost</span> <span class="op">=</span> <span class="vr">current_g_cost</span> <span class="op">+</span> <span class="vr">step_cost</span>
+                <span class="vr">open_list</span>.<span class="fn">append</span>((<span class="vr">neighbor</span>, <span class="vr">path</span> <span class="op">+</span> [<span class="vr">neighbor</span>], <span class="vr">new_g_cost</span>))
+                
+    <span class="kw">return</span> <span class="kw">None</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Detailed Explanation Cards -->
+                <h3 class="cyan-theme" style="margin-top: 60px;">تفكيك الأسطر البرمجية:</h3>
+                <div class="visual-grid">
+                    <div class="v-card cyan">
+                        <i class="fa-solid fa-database"></i>
+                        <h4>تخزين التكلفة الفعلية (g)</h4>
+                        <p>في القائمة المفتوحة نقوم بإضافة البعد الثالث <code>current_g_cost</code>. الخوارزمية الآن تتذكر تماماً كم دفعنا للوصول إلى هنا.</p>
+                    </div>
+                    <div class="v-card cyan">
+                        <i class="fa-solid fa-balance-scale"></i>
+                        <h4>الترتيب الدقيق: f = g + h</h4>
+                        <p>السطر <code>x[2] + h(x[0])</code> يمثل المعادلة الرياضية الذهبية التي تقيم كل مسار بموضوعية تامة وتقدم الأفضل.</p>
+                    </div>
+                    <div class="v-card cyan">
+                        <i class="fa-solid fa-route"></i>
+                        <h4>حساب المسافات التراكمية</h4>
+                        <p>عند المرور على الجيران، يتم استخراج المسافة بين العقدتين وجمعها مع المسافة السابقة لنحصل على <code>new_g_cost</code> لهذا المسار المستقبلي.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SLIDE 7: Final Comparison Table -->
+        <section class="slide-section">
+            <div class="glass-panel reveal">
+                <h2>جدول المقارنة الهندسي</h2>
+                <p style="font-size: 22px; color: var(--text-secondary); margin-bottom: 30px;">نظرة شاملة ومقارنة نهائية بين الخوارزميتين في هندسة البرمجيات والذكاء الاصطناعي.</p>
+
+                <div style="overflow-x: auto;">
+                    <table class="luxury-table">
+                        <thead>
+                            <tr>
+                                <th>وجه المقارنة</th>
+                                <th>Greedy Best-First Search</th>
+                                <th style="color: var(--cyan);">A* Search (A-Star)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>المعادلة الأساسية</strong></td>
+                                <td>$f(n) = h(n)$</td>
+                                <td style="color: var(--cyan);">$f(n) = g(n) + h(n)$</td>
+                            </tr>
+                            <tr>
+                                <td><strong>الضمانية (Optimality)</strong></td>
+                                <td><span style="color: #ef4444;"><i class="fa-solid fa-times-circle"></i> غير مضمونة</span></td>
+                                <td><span style="color: var(--emerald);"><i class="fa-solid fa-check-circle"></i> مضمونة دائماً</span></td>
+                            </tr>
+                            <tr>
+                                <td><strong>استهلاك الذاكرة (Space)</strong></td>
+                                <td>منخفض إلى متوسط (O(bm))</td>
+                                <td>عالي جداً للأسف (O(bd))</td>
+                            </tr>
+                            <tr>
+                                <td><strong>أفضل استخدام</strong></td>
+                                <td>عندما نحتاج أي حل سريع بأقل موارد.</td>
+                                <td>أنظمة الـ GPS وتوجيه الصواريخ والألعاب.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer style="text-align: center; padding: 60px 20px; border-top: 1px solid var(--border-glass); margin-top: 50px; color: var(--text-muted); font-size: 20px; background: rgba(0,0,0,0.3);">
+        <div class="developers-badge" style="transform: scale(0.8); margin-bottom: 20px;">
+            <i class="fa-solid fa-code"></i> تصميم وتطوير
+            <div class="names">MUSTAFA ALDAYOUB & MOUSA ALAWAD</div>
+        </div>
+        <p>تم إعداد هذا العرض التقديمي الأكاديمي لشرح معماريات الذكاء الاصطناعي بطريقة استثنائية.</p>
+        <p style="margin-top: 10px; font-size: 16px; opacity: 0.5;">&copy; 2026 AI Visualization Systems</p>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const reveals = document.querySelectorAll('.reveal');
+            function reveal() {
+                const windowHeight = window.innerHeight;
+                const elementVisible = 100;
+                reveals.forEach(revealElement => {
+                    const elementTop = revealElement.getBoundingClientRect().top;
+                    if (elementTop < windowHeight - elementVisible) {
+                        revealElement.classList.add('active');
+                    }
+                });
+            }
+            window.addEventListener('scroll', reveal);
+            reveal(); // Trigger once on load
+        });
+    </script>
+</body>
+</html>
