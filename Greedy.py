@@ -25,7 +25,7 @@ class GreedyBFSApp(ctk.CTk):
         self.grid_rowconfigure(0, weight=1)
 
         # Left Panel (Controls)
-        self.left_frame = ctk.CTkFrame(self, corner_radius=15)
+        self.left_frame = ctk.CTkScrollableFrame(self, corner_radius=15, width=300)
         self.left_frame.grid(row=0, column=0, padx=20, pady=20, sticky="nsew")
 
         # Right Panel (Graph)
@@ -49,15 +49,25 @@ class GreedyBFSApp(ctk.CTk):
         ctk.CTkButton(self.left_frame, text="Load Example Graph", fg_color="#8B8000", hover_color="#B8860B", 
                       font=("Arial", 14, "bold"), corner_radius=8, command=self.load_example).pack(pady=5, padx=20, fill="x")
 
-        # Add Nodes
-        self.node_entry = ctk.CTkEntry(self.left_frame, placeholder_text="Node Heuristic (e.g., A 10)", justify="center")
+        # Add Nodes / Edit Nodes
+        self.node_entry = ctk.CTkEntry(self.left_frame, placeholder_text="Add/Edit Node (e.g., A 10)", justify="center")
         self.node_entry.pack(pady=(15, 5), padx=20, fill="x", ipady=5)
-        ctk.CTkButton(self.left_frame, text="Add Node", corner_radius=8, command=self.add_node).pack(pady=5, padx=20, fill="x")
+        ctk.CTkButton(self.left_frame, text="Add / Edit Node", corner_radius=8, command=self.add_node).pack(pady=5, padx=20, fill="x")
 
         # Add Edges
-        self.edge_entry = ctk.CTkEntry(self.left_frame, placeholder_text="Node1 Node2 (e.g., A B)", justify="center")
+        self.edge_entry = ctk.CTkEntry(self.left_frame, placeholder_text="Add Edge (e.g., A B)", justify="center")
         self.edge_entry.pack(pady=(15, 5), padx=20, fill="x", ipady=5)
         ctk.CTkButton(self.left_frame, text="Add Edge", corner_radius=8, command=self.add_edge).pack(pady=5, padx=20, fill="x")
+
+        # Delete Nodes
+        self.del_node_entry = ctk.CTkEntry(self.left_frame, placeholder_text="Node to Delete (e.g., A)", justify="center")
+        self.del_node_entry.pack(pady=(15, 5), padx=20, fill="x", ipady=5)
+        ctk.CTkButton(self.left_frame, text="Delete Node", fg_color="#B22222", hover_color="#8B0000", corner_radius=8, command=self.delete_node).pack(pady=5, padx=20, fill="x")
+
+        # Delete Edges
+        self.del_edge_entry = ctk.CTkEntry(self.left_frame, placeholder_text="Edge to Delete (e.g., A B)", justify="center")
+        self.del_edge_entry.pack(pady=(15, 5), padx=20, fill="x", ipady=5)
+        ctk.CTkButton(self.left_frame, text="Delete Edge", fg_color="#B22222", hover_color="#8B0000", corner_radius=8, command=self.delete_edge).pack(pady=5, padx=20, fill="x")
 
         # Start and Goal
         self.start_entry = ctk.CTkEntry(self.left_frame, placeholder_text="Start Node", justify="center")
@@ -120,6 +130,44 @@ class GreedyBFSApp(ctk.CTk):
                 self.draw_graph()
             else:
                 messagebox.showerror("Error", "Both nodes must be added first!")
+        else:
+            messagebox.showerror("Error", "Invalid format! Use: Node1 Node2 (e.g. A B)")
+
+    def delete_node(self):
+        node = self.del_node_entry.get().strip()
+        if not node:
+            return
+        
+        found = False
+        if node in self.heuristics:
+            del self.heuristics[node]
+            found = True
+        if node in self.graph:
+            del self.graph[node]
+            found = True
+            
+        # Remove any edges pointing to this node
+        for u in self.graph:
+            if node in self.graph[u]:
+                self.graph[u].remove(node)
+                found = True
+
+        if found:
+            self.del_node_entry.delete(0, ctk.END)
+            self.draw_graph()
+        else:
+            messagebox.showwarning("Warning", "Node not found!")
+
+    def delete_edge(self):
+        data = self.del_edge_entry.get().split()
+        if len(data) == 2:
+            u, v = data[0], data[1]
+            if u in self.graph and v in self.graph[u]:
+                self.graph[u].remove(v)
+                self.del_edge_entry.delete(0, ctk.END)
+                self.draw_graph()
+            else:
+                messagebox.showwarning("Warning", "Edge not found!")
         else:
             messagebox.showerror("Error", "Invalid format! Use: Node1 Node2 (e.g. A B)")
 
